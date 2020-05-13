@@ -1,0 +1,5 @@
+venv
+.gitignore
+.travis.yml
+Dockerfile
+docker-compose.yml
