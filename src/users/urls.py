@@ -7,5 +7,5 @@ app_name = 'users'
 urlpatterns = [
     path('create/', views.CreateUserView.as_view(), name='create'),
     path('login/', views.LoginUserView.as_view(), name='login'),
-    path('me/', views.ManageUserView.as_view(), name='profile')
+    path('me/', views.ManageUserView.as_view(), name='me')
 ]
