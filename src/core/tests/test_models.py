@@ -1,6 +1,13 @@
 from django.test import TestCase
 from django.contrib import auth
 
+from core import models
+
+
+def sample_user(email='test@example.com', password='pwd123'):
+    """Creates a sample user"""
+    return auth.get_user_model().objects.create_user(email, password)
+
 
 class ModelTests(TestCase):
 
@@ -34,3 +41,12 @@ class ModelTests(TestCase):
         )
         self.assertTrue(user.is_superuser)
         self.assertTrue(user.is_staff)
+
+    def test_tag_str(self):
+        """Test the tag string representation"""
+        tag = models.Tag.objects.create(
+            user=sample_user(),
+            name='Vegan'
+        )
+
+        self.assertEqual(str(tag), tag.name)

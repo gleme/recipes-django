@@ -3,7 +3,7 @@ from django.contrib import auth
 from django.urls import reverse
 
 
-class AdminSiteTest(TestCase):
+class AdminSiteTests(TestCase):
 
     def setUp(self) -> None:
         self.client = Client()
