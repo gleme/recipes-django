@@ -5,7 +5,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Tag
+from core.models import Tag, Recipe
 
 from recipes.serializers import TagSerializer
 
@@ -78,3 +78,44 @@ class PrivateTagsApiTests(TestCase):
         payload = {'name': ''}
         res = self.client.post(TAGS_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_retrieve_tags_assigned_to_recipes(self):
+        """Test filtering tags by those assigned to recipes"""
+        breakfast = Tag.objects.create(user=self.user, name='Breakfast')
+        lunch = Tag.objects.create(user=self.user, name='Lunch')
+        gods_breakfast = Recipe.objects.create(
+            title='Bacon and Eggs',
+            time_minutes=10,
+            price=30.00,
+            user=self.user,
+        )
+        gods_breakfast.tags.add(breakfast)
+        breakfast_data = TagSerializer(breakfast).data
+        lunch_data = TagSerializer(lunch).data
+
+        res = self.client.get(TAGS_URL, {'assigned_only': 1})
+        self.assertIn(breakfast_data, res.data)
+        self.assertNotIn(lunch_data, res.data)
+
+    def test_retrieve_tags_assigned_distinct(self):
+        """Test filtering tags by assigned returns distinct and unique items"""
+        breakfast = Tag.objects.create(user=self.user, name='Breakfast')
+        Tag.objects.create(user=self.user, name='Lunch')
+        gods_breakfast = Recipe.objects.create(
+            title='Bacon and Eggs',
+            time_minutes=10,
+            price=30.00,
+            user=self.user,
+        )
+        pbj = Recipe.objects.create(
+            title='Peanut butter and jelly sandwich',
+            time_minutes=5,
+            price=2.00,
+            user=self.user
+        )
+        gods_breakfast.tags.add(breakfast)
+        pbj.tags.add(breakfast)
+
+        res = self.client.get(TAGS_URL, {'assigned_only': 1})
+
+        self.assertEqual(len(res.data), 1)
