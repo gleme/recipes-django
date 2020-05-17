@@ -102,7 +102,10 @@ class PrivateIngredientsAPITests(TestCase):
 
     def test_retrieve_ingredients_assigned_distinct(self):
         """Tests filtering ingredients return distinct and unique ingredients"""
-        apples = Ingredient.objects.create(user=self.user, name='Apples')
+        apples = Ingredient.objects.create(
+            user=self.user,
+            name='Apples'
+        )
         Ingredient.objects.create(user=self.user, name='Turkey')
         crumble = Recipe.objects.create(
             title='Apple crumble',
