@@ -15,7 +15,7 @@ RECIPES_URL = reverse('recipes:recipe-list')
 
 def detail_url(recipe_id: int):
     """Return recipe detail URL"""
-    return reverse('recipe:recipe-detail', args=[recipe_id])
+    return reverse('recipes:recipe-detail', args=[recipe_id])
 
 
 def sample_tag(user, name='Dessert') -> Tag:
@@ -45,11 +45,11 @@ class PublicRecipeApiTests(TestCase):
     def setUp(self) -> None:
         self.client = APIClient()
 
-
     def test_authentication_required(self):
         """Test that authnetication is required"""
         res = self.client.get(RECIPES_URL)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
 
 class PrivateRecipeApiTests(TestCase):
     """Tests unauthenticated recipe API access"""
