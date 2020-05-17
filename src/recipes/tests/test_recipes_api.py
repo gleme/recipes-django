@@ -233,3 +233,50 @@ class RecipeImageUploadTests(TestCase):
         url = image_upload_url(self.recipe.id)
         res = self.client.post(url, {'image': 'notimage'}, format='multipart')
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_filter_recipes_by_tags(self):
+        """Test returning recipes with specific tags"""
+        curry = sample_recipe(user=self.user, title='Curry')
+        vegan = sample_tag(user=self.user, name='Vegan')
+        curry.tags.add(vegan)
+        barbecue = sample_recipe(user=self.user, title='American Barbecue')
+        meat_lovers = sample_tag(user=self.user, name='Meat Lovers')
+        barbecue.tags.add(meat_lovers)
+        carrot_cake = sample_recipe(user=self.user, title='Carrot Cake')
+        homemade = sample_tag(user=self.user, name='Homemade')
+        carrot_cake.tags.add(homemade)
+        payload = {'tags': f'{vegan.id},{meat_lovers.id}'}
+        curry_data = RecipeSerializer(curry).data
+        barbecue_data = RecipeSerializer(barbecue).data
+        carrot_cake_data = RecipeSerializer(carrot_cake).data
+
+        res = self.client.get(RECIPES_URL, payload)
+
+        self.assertIn(curry_data, res.data)
+        self.assertIn(barbecue_data, res.data)
+        self.assertNotIn(carrot_cake_data, res.data)
+
+    def test_filter_recipes_by_ingredients(self):
+        """Test retuning recipes with specific ingredients"""
+        curry = sample_recipe(user=self.user, title='Curry')
+        barbecue = sample_recipe(user=self.user, title='American Barbecue')
+        carrot_cake = sample_recipe(user=self.user, title='Carrot Cake')
+        potatoes = sample_ingredient(user=self.user, name='Potatoes')
+        carrot = sample_ingredient(user=self.user, name='Carrot')
+        salt = sample_ingredient(user=self.user)
+        curry.ingredients.add(potatoes)
+        curry.ingredients.add(carrot)
+        curry.ingredients.add(salt)
+        barbecue.ingredients.add(salt)
+        carrot_cake.ingredients.add(carrot)
+
+        payload = {'ingredients': f'{potatoes.id},{salt.id}'}
+        curry_data = RecipeSerializer(curry).data
+        barbecue_data = RecipeSerializer(barbecue).data
+        carrot_cake_data = RecipeSerializer(carrot_cake).data
+
+        res = self.client.get(RECIPES_URL, payload)
+
+        self.assertIn(curry_data, res.data)
+        self.assertIn(barbecue_data, res.data)
+        self.assertNotIn(carrot_cake_data, res.data)
